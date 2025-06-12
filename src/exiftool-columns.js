@@ -89,6 +89,10 @@ function fillColumns(/* Path */ filePath, /* Map */ columns) {
     }
 
     var tagValue = tags[tagFullName].val
+    if (tagValue instanceof Array) {
+      tagValue = tagValue.join("; ");
+    }
+
     var tagName = getGroup0AndTagName(tagFullName)
     columns(tagName).value = tagValue
   }
