@@ -1,43 +1,42 @@
 // Add the required ExifTool tags:
 var exifToolTagNamesDatabase = {
   // The format of this list is:
-  // "Group0:TagName": "Column display name"
+  // "Group0__TagName": "Column display name"
 
   // General
-  "File:FileSize": "File Size",
+  "File__FileSize": "File Size",
 
   // PDF
-  "PDF:ContainerVersion": "PDF Container Version",
-  "PDF:Author": "PDF Author",
-  "PDF:PageCount": "PDF Page Count",
+  "PDF__ContainerVersion": "PDF Container Version",
+  "PDF__Author": "PDF Author",
+  "PDF__PageCount": "PDF Page Count",
 
   // MPEG
-  "MPEG:AudioBitrate": "MPEG Audio Bitrate",
-  "MPEG:SampleRate": "MPEG Sample Rate",
+  "MPEG__AudioBitrate": "MPEG Audio Bitrate",
+  "MPEG__SampleRate": "MPEG Sample Rate",
 
   // JFIF
-  "JFIF:XResolution": "JFIF X Resolution",
+  "JFIF__XResolution": "JFIF X Resolution",
 
   // PNG
-  "PNG:BitDepth": "PNG Bit Depth",
+  "PNG__BitDepth": "PNG Bit Depth",
 
   // QuickTime
-  "QuickTime:Rotation": "QuickTime Rotation",
+  "QuickTime__Rotation": "QuickTime Rotation",
 }
 // -------------
 
 var exifTool = new ActiveXObject("DOpusScriptingExtensions.ExifTool")
 
 function OnInit(/* ScriptInitData */ data) {
-  data.name = "ExifTool-columns-plugin"
+  data.name = "ExifToolColumns-Plugin"
   data.desc = "The plugin to add extra columns provided by ExifTool"
   data.default_enable = true
-  data.config_desc = DOpus.NewMap()
-  data.config_desc("debug") = "Print debug messages to the script log"
   data.config.debug = false
+  data.config.debug.desc = "Print debug messages to the script log"
   data.config.extensionsWhiteList = ""
-  data.config_desc("extensionsWhiteList") = "Comma separated list of file extensions (case insensitive) to process. Leave empty to process all files. Example of the list: '.jpeg,.pdf,.psd'"
-  data.version = "0.0-dev"
+  data.config.extensionsWhiteList.desc = "Comma separated list of file extensions (case insensitive) to process. Leave empty to process all files. Example of the list: '.jpeg,.pdf,.psd'"
+  data.version = "3.0"
   data.url = "https://github.com/PolarGoose/DirectoryOpus-ExifToolColumns-Plugin"
 
   for (var tagName in exifToolTagNamesDatabase) {
@@ -81,7 +80,7 @@ function fillColumnsWithEmptyValues(/* Map */ columns) {
 }
 
 function fillColumns(/* Path */ filePath, /* Map */ columns) {
-  var tags = JSON.parse(exifTool.GetInfoAsJson(filePath, getKeys(exifToolTagNamesDatabase)))[0]
+  var tags = JSON.parse(exifTool.GetInfoAsJson(filePath, getKeysAsExifToolTagNames(exifToolTagNamesDatabase)))[0]
 
   for (var tagFullName in tags) {
     if (tagFullName === "SourceFile") {
@@ -93,16 +92,19 @@ function fillColumns(/* Path */ filePath, /* Map */ columns) {
       tagValue = tagValue.join("; ");
     }
 
-    var tagName = getGroup0AndTagName(tagFullName)
-    columns(tagName).value = tagValue
+    var columnName = getGroup0AndTagName(tagFullName)
+
+    if (columns.exists(columnName)) {
+      columns(columnName).value = tagValue
+    }
   }
 }
 
 // Extract the tag group0 and tag name:
-//   QuickTime:Meta:TagName => QuickTime:TagName
+//   QuickTime:Meta:TagName => QuickTime__TagName
 function /* string */ getGroup0AndTagName(/* string */ tagFullName) {
   var parts = tagFullName.split(":")
-  return parts[0] + ":" + parts[2]
+  return parts[0] + "__" + parts[2]
 }
 
 function /* bool */ shouldIgnoreFileExtension(/* Path */ filePath) {
@@ -135,10 +137,10 @@ function /* bool */ containsCaseInsensitive(/* string */ str, /* string */ subst
   return str.indexOf(substr) !== -1
 }
 
-function /* object[] */ getKeys(dictionary) {
+function /* object[] */ getKeysAsExifToolTagNames(dictionary) {
   var keys = []
   for (var key in dictionary) {
-    keys.push(key)
+    keys.push(key.replace("__", ":"))
   }
   return keys
 }
