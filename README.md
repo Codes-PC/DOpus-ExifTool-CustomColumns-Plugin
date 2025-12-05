@@ -1,6 +1,7 @@
 # DirectoryOpus-ExifToolColumns-Plugin
 A DirectoryOpus plugin to add extra columns provided by ExifTool.
 <img src="doc/screenshot.png" width="100%" />
+<img width="1035" height="336" alt="image" src="https://github.com/user-attachments/assets/38f2e2c8-0e6e-411b-9b8d-9a9016cab64d" />
 
 # How to use
 * Install [DOpus-Scripting-Extensions](https://github.com/PolarGoose/DOpus-Scripting-Extensions)
